@@ -10,6 +10,10 @@ pygame.init()
 pygame.display.set_mode((50,50))
 running = True
 EggRun = False
+Selecting = True
+SelectC = 255
+FadeStage = 0
+Choice = 0
 def reset():
     global AA,BA,CA,AB,BB,CB,AC,BC,CC,MouseX,MouseY,Player,Direction,Egg1,Egg2,Egg3
     AA = 0
@@ -291,11 +295,38 @@ def Repair():
     A = 0
     B = 0
     while(B <= 3):
-        while(A <=3):
+        while(A <= 3):
             Select(A,B,Translate(A,B),False)
             A = A+1
         B = B+1
         A = 0
+def Menu(R,W,B):
+    List=[
+      R, R, R, R, R, R, R, W, 
+      R, R, R, R, R, R, W, B,
+      R, R, R, R, R, W, B, B,
+      R, R, R, R, W, B, B, B,
+      R, R, R, W, B, B, B, B,
+      R, R, W, B, B, B, B, B,
+      R, W, B, B, B, B, B, B,
+      W, B, B, B, B, B, B, B,
+      ]
+    sense.set_pixels(List)
+def Start():
+    global Selecting
+    if(Selecting == False):
+        Flash(255,255,255,0.2)
+        Bars()
+        Sweep(True)
+        Select(1,1,2,1)
+    if(Selecting == True):
+        Menu([255,0,0],[255,255,255],[0,0,255])
+        sleep(0.2)
+        Menu([255,0,0],[255,255,255],[0,0,0])
+        AllOff()
+        sleep(0.1)
+        Menu([255,0,0],[255,255,255],[0,0,0])
+#Game begins now
 AllOn(255,255,255)
 sleep(1)
 A = 255
@@ -305,7 +336,7 @@ while(A >= 0):
 ThreeText("T","i","c",[255,255,255],[255,0,0],0.5)
 A = 255
 B = 0
-while(A>=0):
+while(A >= 0):
     AllOn(A,B,0)
     A = A-1
     B = B+1
@@ -317,14 +348,12 @@ while(A >= 0):
     A = A-1
     B = B+1
 ThreeText("T","o","e",[255,255,255],[0,0,255],0.5)
-sense.show_letter(" ", text_colour=[255,255,255], back_colour=[0,0,255])
+sleep(0.25)
 A = 255
-while(A >=0):
+while(A >= 0):
     AllOn(0,0,A)
     A = A-1
-Bars()
-Sweep(True)
-Select(1,1,2,1)
+Start()
 while(running == True):
     for event in pygame.event.get():
         print(event)
@@ -332,20 +361,58 @@ while(running == True):
             running = False
             print("BYE")
         if(event.type == KEYDOWN):
-            if(event.key == K_RIGHT):
-                print("Right")
-                MoveRight()
-            if(event.key == K_UP):
-                print("Up")
-                MoveUp()
-            if(event.key == K_LEFT):
-                print("Left")
-                MoveLeft()
-            if(event.key == K_DOWN):
-                print("Down")
-                MoveDown()
-            if(event.key == K_RETURN):
-                print("Return")
-                SetPlace()
-            Egg()
-    MouseBlink()
+            if(Selecting == True):
+                if(event.key == K_RETURN):
+                    print("ENTER")
+                    Selecting = False
+                    if(Choice == 0):
+                        print("Game")
+                        Start()
+                    if(Choice == 1):
+                        print("AI")
+                if(event.key != K_RETURN):
+                    if(Choice == 0):
+                        Choice = 1
+                    else:
+                        Choice = 0
+                    Flash(255,255,255,0.1)
+                    SelectC = 255
+                    FadeStage = 0
+                    if(Choice == 0):
+                        Menu([255,0,0],[255,255,255],[0,0,0])
+                    if(Choice == 1):
+                        Menu([0,0,0],[255,255,255],[0,0,255])
+            else:
+                if(event.key == K_RIGHT):
+                    print("Right")
+                    MoveRight()
+                if(event.key == K_UP):
+                    print("Up")
+                    MoveUp()
+                if(event.key == K_LEFT):
+                    print("Left")
+                    MoveLeft()
+                if(event.key == K_DOWN):
+                    print("Down")
+                    MoveDown()
+                if(event.key == K_RETURN):
+                    print("Return")
+                    SetPlace()
+                Egg()
+    if(Selecting == True):
+        if(SelectC >= 255):
+            FadeStage = 0
+        if(SelectC <= 0):
+            FadeStage = 1
+        if(FadeStage == 0):
+            SelectC = SelectC-1
+            sleep(0.001)
+        if(FadeStage == 1):
+            SelectC = SelectC+1
+            sleep(0.001)
+        if(Choice == 0):
+           Menu([SelectC,0,0],[255,255,255],[0,0,0])
+        if(Choice == 1):
+           Menu([0,0,0],[255,255,255],[0,0,SelectC])
+    if(Selecting == False):
+        MouseBlink()
