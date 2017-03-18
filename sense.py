@@ -14,6 +14,8 @@ Selecting = True
 SelectC = 255
 FadeStage = 0
 Choice = 0
+AI = False
+Winner = False
 def reset():
     global AA,BA,CA,AB,BB,CB,AC,BC,CC,MouseX,MouseY,Player,Direction,Egg1,Egg2,Egg3
     AA = 0
@@ -132,7 +134,7 @@ def MouseBlink():
         Box(MouseX,MouseY,[0,A,0])
         sleep(0.001)
         A = A-1
-def Sweep(Tf):
+def Sweep(TF):
     X = 0
     Y = 0
     while(Y <= 2):
@@ -142,7 +144,7 @@ def Sweep(Tf):
             X = X+1
         X = 0
         Y = Y+1
-    if(Tf):
+    if(TF):
         reset()
 def MoveUp():
     global MouseX,MouseY,Player,Direction
@@ -230,7 +232,6 @@ def Translate(X,Y):
 def SetPlace():
     global MouseX,MouseY,Player,AA,BA,CA,AB,BB,CB,AC,BC,CC,Direction
     Select(MouseX,MouseY,Player,False)
-    Ran = False
     if(MouseX == 0):
         if(MouseY == 0):
             AA = Player
@@ -252,25 +253,22 @@ def SetPlace():
             CB = Player
         if(MouseY == 2):
             CC = Player
-    if(Direction == 1):
-        MoveUp()
-    if(Direction == 2):
-        MoveRight()
-    if(Direction == 3):
-        MoveDown()
-    if(Direction == 4):
-        MoveLeft()            
-    if(Player == 1):
-        if(Ran == False):
+    EndTurn()
+def EndTurn():
+    global Direction,Player
+    if(DetectWin() == False):
+        if(Direction == 1):
+            MoveUp()
+        if(Direction == 2):
+            MoveRight()
+        if(Direction == 3):
+            MoveDown()
+        if(Direction == 4):
+            MoveLeft()            
+        if(Player == 1):
             Player = 3
-            Ran = True
-    if(Player == 3):
-        if(Ran == False):
+        else:
             Player = 1
-            Ran = True
-def GameOver(Winner):
-          sleep(10)
-          Sweep(True)
 def Egg():
     global EggRun,Egg1,Egg2,Egg3,Direction,Player
     if(EggRun == False):
@@ -320,12 +318,104 @@ def Start():
         Sweep(True)
         Select(1,1,2,1)
     if(Selecting == True):
+        Flash(255,255,255,0.1)
         Menu([255,0,0],[255,255,255],[0,0,255])
-        sleep(0.2)
-        Menu([255,0,0],[255,255,255],[0,0,0])
-        AllOff()
         sleep(0.1)
-        Menu([255,0,0],[255,255,255],[0,0,0])
+        A = 2
+        while(A >= 1):
+             Flash(255,255,255,0.1)
+             Menu([255,0,0],[255,255,255],[0,0,0])
+             sleep(0.1)
+             Flash(255,255,255,0.1)
+             Menu([0,0,0],[255,255,255],[0,0,255])
+             sleep(0.1)
+             A = A-1
+def DetectWin():
+    global AA,AB,AC,BA,BB,BC,CA,CB,CC,Winner,running,EggRun
+    A = 0
+    B = 1
+    C = 2
+    if((AA) and (AA == BA == CA)):
+        WinSweep(A,A,B,A,C,A)
+        Winner = AA
+    if((AB) and (AB == BB == CB)):
+        WinSweep(A,B,B,B,C,B)
+        Winner = AB
+    if((AC) and (AC == BC == CC)):
+        WinSweep(A,C,B,C,C,C)
+        Winner = AC
+    if((AA) and (AA == AB == AC)):
+        WinSweep(A,A,A,B,A,C)
+        Winner = AC
+    if((BA) and (BA == BB == BC)):
+        WinSweep(B,A,B,B,B,C)
+        Winner = BA
+    if((CA) and (CA == CB == CC)):
+        WinSweep(C,A,C,B,C,C)
+        Winner = CA
+    if((AA) and (AA == BB == CC)):
+        WinSweep(A,A,B,B,C,C)
+        Winner = AA
+    if((AC) and (AC == BB == CA)):
+        WinSweep(A,C,B,B,C,A)
+        Winner = AC
+    if((BB) and (AA == CA == BB == AC == CC) and (EggRun == False)):
+        EggWimSweep(A,A,C,A,B,B,A,C,C,C)
+        Winner = BB
+    if((BB) and (BA == AB == BB == CB == BC) and (EggRun == False)):
+        EggWimSweep(B,A,A,B,B,B,C,B,B,C)
+        Winner = BB
+    print(Winner)
+    if(Winner):
+        running = False
+        GameOver(Winner)
+    return(Winner)
+def WinSweep(XA,YA,XB,YB,XC,YC):
+    X = 0
+    Y = 0
+    while(Y <= 2):
+        while(X <= 2):
+            if((X == XA and Y == YA) or (X == XB and Y == YB) or (X == XC and Y == YC)):
+               Select(X,Y,2,0)
+            else:
+               Select(X,Y,0,0)
+               sleep(0.025)
+            X = X+1
+        X = 0
+        Y = Y+1
+def EggWimSweep(XA,YA,XB,YB,XC,YC,XD,YD,XE,YE):
+    global Winner,EggRun
+    Sweep(False)
+    AllOff()
+    A = 255
+    while(A >= 0):
+        AllOn(A,A,A)
+        A = A-1
+    if(Winner == 1):
+        sense.show_message("Made by FurryKitten",scroll_speed=0.05,text_colour=[255,0,0],back_colour=[0,0,0])
+    if(Winner == 3):
+        sense.show_message("Made by FurryKitten",scroll_speed=0.05,text_colour=[0,0,255],back_colour=[0,0,0])               
+    EggRun = True
+    Bars()
+    Repair()
+    X = 0
+    Y = 0
+    while(Y <= 2):
+        while(X <= 2):
+            if((X == XA and Y == YA) or (X == XB and Y == YB) or (X == XC and Y == YC) or (X == XD and Y == YD) or (X == XE and Y == YE)):
+               Select(X,Y,2,0)
+            else:
+               Select(X,Y,0,0)
+               sleep(0.025)
+            X = X+1
+        X = 0
+        Y = Y+1
+def GameOver(Winner):
+    sleep(10)
+    if(Winner == 1):
+        sense.show_message("You Win!",scroll_speed=0.05,text_colour=[255,0,0],back_colour=[0,0,0])
+    if(Winner == 3):
+        sense.show_message("You Win!",scroll_speed=0.05,text_colour=[0,0,255],back_colour=[0,0,0])
 #Game begins now
 AllOn(255,255,255)
 sleep(1)
@@ -355,6 +445,8 @@ while(A >= 0):
     A = A-1
 Start()
 while(running == True):
+    if(Selecting == False):
+        MouseBlink()
     for event in pygame.event.get():
         print(event)
         if(event.type == QUIT):
@@ -369,7 +461,9 @@ while(running == True):
                         print("Game")
                         Start()
                     if(Choice == 1):
+                        AI = True
                         print("AI")
+                        Start()
                 if(event.key != K_RETURN):
                     if(Choice == 0):
                         Choice = 1
@@ -397,7 +491,7 @@ while(running == True):
                     MoveDown()
                 if(event.key == K_RETURN):
                     print("Return")
-                    SetPlace()
+                    SetPlace()  
                 Egg()
     if(Selecting == True):
         if(SelectC >= 255):
@@ -414,5 +508,3 @@ while(running == True):
            Menu([SelectC,0,0],[255,255,255],[0,0,0])
         if(Choice == 1):
            Menu([0,0,0],[255,255,255],[0,0,SelectC])
-    if(Selecting == False):
-        MouseBlink()
