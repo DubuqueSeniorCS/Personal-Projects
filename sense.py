@@ -3,11 +3,7 @@ import time
 import random
 from random import randint
 from time import sleep
-import pygame
-from pygame.locals import *
 sense = SenseHat()
-pygame.init()
-pygame.display.set_mode((50,50))
 running = True
 EggRun = False
 Selecting = True
@@ -447,14 +443,11 @@ Start()
 while(running == True):
     if(Selecting == False):
         MouseBlink()
-    for event in pygame.event.get():
+    for event in sense.stick.get_events():
         print(event)
-        if(event.type == QUIT):
-            running = False
-            print("BYE")
-        if(event.type == KEYDOWN):
+        if(event.action != "released"):
             if(Selecting == True):
-                if(event.key == K_RETURN):
+                if(event.direction == "middle"):
                     print("ENTER")
                     Selecting = False
                     if(Choice == 0):
@@ -464,7 +457,7 @@ while(running == True):
                         AI = True
                         print("AI")
                         Start()
-                if(event.key != K_RETURN):
+                if(event.direction != "middle"):
                     if(Choice == 0):
                         Choice = 1
                     else:
@@ -477,19 +470,19 @@ while(running == True):
                     if(Choice == 1):
                         Menu([0,0,0],[255,255,255],[0,0,255])
             else:
-                if(event.key == K_RIGHT):
+                if(event.direction == "right"):
                     print("Right")
                     MoveRight()
-                if(event.key == K_UP):
+                if(event.direction == "up"):
                     print("Up")
                     MoveUp()
-                if(event.key == K_LEFT):
+                if(event.direction == "left"):
                     print("Left")
                     MoveLeft()
-                if(event.key == K_DOWN):
+                if(event.direction == "down"):
                     print("Down")
                     MoveDown()
-                if(event.key == K_RETURN):
+                if(event.direction == "middle"):
                     print("Return")
                     SetPlace()  
                 Egg()
